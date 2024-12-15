@@ -2,7 +2,7 @@ import { firebaseAuth } from '@/firebase/config';
 import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { FirebaseError } from 'firebase/app';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 
 export const registerAction = defineAction({
   accept: 'form',
@@ -26,7 +26,13 @@ export const registerAction = defineAction({
     try {
       const { user } = await createUserWithEmailAndPassword(firebaseAuth, email, password);
 
-      console.log({ user });
+      await updateProfile(firebaseAuth.currentUser!, {
+        displayName: name
+      });
+
+      await sendEmailVerification(firebaseAuth.currentUser!, {
+        url: `http://localhost:4321/dashboard?verify_email=true`
+      });
 
       return {
         statusCode: 201

@@ -91,7 +91,7 @@ const rememberMe = !!email;
         return;
       }
 
-      if (data.message) {
+      if (data.statusCode !== 201) {
         Swal.fire({
           icon: 'error',
           title: 'Error al registrar',
@@ -101,6 +101,7 @@ const rememberMe = !!email;
         return;
       }
 
+      window.location.replace('/dashboard');
       console.log('Usuario registrado:', data);
     } catch (error) {
       console.log('Error al registrar:', error);

@@ -2,7 +2,7 @@
 import { firebaseAuth } from '@/firebase/config';
 import Layout from '@/layouts/Layout.astro';
 
-const authUser = firebaseAuth.currentUser;
+const authUser = await firebaseAuth.currentUser?.reload().then(() => firebaseAuth.currentUser);
 
 if (!authUser || authUser === null) {
   return Astro.redirect('/auth/login');
