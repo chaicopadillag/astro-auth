@@ -31,7 +31,7 @@ export const registerAction = defineAction({
       });
 
       await sendEmailVerification(firebaseAuth.currentUser!, {
-        url: `http://localhost:4321/dashboard?verify_email=true`
+        url: `${import.meta.env.APP_HOST}/dashboard?verify_email=true`
       });
 
       return {
