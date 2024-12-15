@@ -5,15 +5,30 @@ const protectedPaths = ['/dashboard', '/settings'];
 
 const authPaths = ['/auth/login', '/auth/register'];
 
-export const onRequest = defineMiddleware(({ request, url, redirect }, next) => {
+export const onRequest = defineMiddleware(async ({ request, url, redirect, locals }, next) => {
   console.log({ pathname: url.pathname });
 
-  if (authPaths.includes(url.pathname)) {
-    const authUser = firebaseAuth.currentUser;
+  const isLogged = !!firebaseAuth.currentUser;
+  const authUser = await firebaseAuth.currentUser?.reload().then(() => firebaseAuth.currentUser);
 
-    if (authUser) {
-      return redirect('/dashboard');
-    }
+  locals.isLogged = isLogged;
+  if (authUser) {
+    locals.authUser = {
+      name: authUser.displayName || '',
+      avatar: authUser.photoURL || '',
+      email: authUser.email || '',
+      id: authUser.uid,
+      emailVerified: authUser.emailVerified,
+      provider: authUser.providerId
+    };
+  }
+
+  if (isLogged && authPaths.includes(url.pathname)) {
+    return redirect('/dashboard');
+  }
+
+  if (!isLogged && protectedPaths.includes(url.pathname)) {
+    return redirect('/auth/login');
   }
 
   return next();
